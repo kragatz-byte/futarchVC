@@ -1,155 +1,146 @@
-# FutarchyVC
+# futarchVC
 
-**CS 153 submission** — A mobile campus venture platform where **AI produces structured diligence**, **students forecast and decide**, and **reputation accumulates on a leaderboard**. Humans always make the final invest/pass call.
+## Overview
 
----
+FutarchyVC is an AI-native platform for startup evaluation that combines autonomous diligence agents with a forecasting layer inspired by futarchy.
 
-## What the app does
+The core idea behind FutarchyVC is that venture capital is fundamentally a forecasting problem. Investors must make decisions under extreme uncertainty, yet those decisions are often made by a relatively small group of individuals with limited information and bandwidth. FutarchyVC explores whether AI-generated diligence combined with collective forecasting can create a more scalable and transparent approach to startup evaluation.
 
-| Capability | Where to see it in the app |
-|------------|----------------------------|
-| **AI diligence** | Feed cards (AI score) → **View diligence** → startup detail accordion (memo, bull/bear, risks, score) |
-| **Startup forecasting** | **Forecast** on feed or detail → probability sliders + optional reasoning per question |
-| **Investment decisions** | **Invest** / **Pass** → conviction slider + optional reasoning (watchlist on detail) |
-| **Leaderboards / reputation** | **Leaderboard** tab — forecasters, activity, campus rankings, badges |
-| **Founder submission** | **Submit** tab → form → “Generating AI diligence…” → new startup in feed with full memo |
+## Problem
 
-**Problem & insight:** Student investors see many campus startups but lack time for consistent diligence. FutarchyVC compresses research into an AI memo and forces explicit forecasts and decisions so judgment is recorded and comparable over time.
+High-quality startup evaluation does not scale.
 
-**Futarchy-style loop:** AI informs → users forecast outcomes → users invest or pass → aggregate signals and reputation update (local demo or Supabase when configured).
+Traditional venture capital firms rely on analysts and associates to conduct extensive diligence on startups, including market research, competitor analysis, risk assessment, and investment memo generation. This process is time-intensive, expensive, and inherently limits the number of startups that can be evaluated in depth.
 
----
+At the same time, prediction markets have demonstrated success in aggregating information and forecasting uncertain future events, but have rarely been applied directly to startup investing and capital allocation.
 
-## How to run
+FutarchyVC seeks to bridge this gap by combining AI-powered venture diligence with crowd forecasting.
 
-### Recommended for grading / demo (no API keys)
+## How It Works
 
-```bash
-npm install
-cp .env.demo .env
-npm run start:demo
-```
+### Founder Submission Layer
 
-Open in **Expo Go** (scan QR) or press `i` / `a` for iOS/Android simulators. The app skips auth and loads six sample startups with full diligence.
+Founders submit startup information including company descriptions, websites, fundraising details, traction metrics, and pitch materials.
 
-### With optional backend
+### AI Diligence Layer
 
-```bash
-cp .env.example .env
-# Set EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY, OPENAI_API_KEY as needed
-# Set EXPO_PUBLIC_DEMO_MODE=false for real auth/sync
-npx expo start -c
-```
+Submitted startups are analyzed through an AI-powered diligence pipeline that generates:
 
-Run database DDL from [`supabase/schema.sql`](supabase/schema.sql) if using Supabase.
+* Executive summaries
+* Market analyses
+* Competitor analyses
+* Bull cases
+* Bear cases
+* Risk assessments
+* Investment memos
+* Suggested diligence questions
 
-| Variable | Purpose |
-|----------|---------|
-| `EXPO_PUBLIC_DEMO_MODE` | `true` = mock data + local storage only (reliable demo) |
-| `EXPO_PUBLIC_SUPABASE_URL` | Optional cloud sync + auth |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key (never service role in client) |
-| `OPENAI_API_KEY` | Optional live diligence on founder submit |
+The goal of the AI system is not to make investment decisions, but to reduce the cost of generating high-quality investment research.
 
----
+### Forecasting Layer
 
-## How AI is used
+Users review AI-generated diligence and submit forecasts regarding startup outcomes, such as:
 
-1. **Trigger:** Founder submits startup (Submit tab) or mock path in demo mode.
-2. **Prompts:** `lib/diligencePrompts.ts` — system role is *analyst, not decider*; user template requests JSON fields + `ai_score` (0–100).
-3. **Generation:** `services/generateDiligence.ts` calls OpenAI (`gpt-4o-mini`, JSON mode) when `OPENAI_API_KEY` is set; otherwise `generateDiligenceMock.ts`.
-4. **Parsing:** `lib/parseDiligenceJson.ts` normalizes model output with fallbacks (no crash on malformed JSON).
-5. **Display:** Diligence stored and shown on startup detail; score on feed cards via `AiScoreBadge`.
+* Future fundraising success
+* Revenue milestones
+* Startup growth potential
+* Overall investment attractiveness and, ultimately, their overall vote on the investment
 
-**Not automated:** Invest/pass, forecast probabilities, and leaderboard rank are **human-entered** (or seeded mock data); AI does not place investments.
+### Decision Dashboard
 
----
+Users browse startups through a scrolling feed and interact with:
 
-## How Cursor and ChatGPT were used (process & disclosure)
+* Startup profiles
+* AI-generated diligence reports
+* Investment decisions
+* Forecasting tools
+* Reputation systems
+* Community leaderboards
 
-| Tool | Role |
-|------|------|
-| **Cursor (Agent)** | Scaffolded Expo app, navigation, Supabase layer, UI components, demo mode, stability pass, README |
-| **ChatGPT** | Early product framing, sample startup narratives, diligence prompt wording, copy edits |
+The platform is designed to create an engaging environment where participants compete to identify promising startups before they become widely recognized.
 
-**Author ownership:** Core product decisions (futarchy loop, screen map, data model), manual testing on device, and final review of all generated code. AI-assisted files were edited for consistency and correctness before submission.
+## Technology Stack
 
-**Integrity:** No fabricated user studies or live deployment metrics in this repo. Mock diligence is used when API keys are absent (`EXPO_PUBLIC_DEMO_MODE`).
+### Frontend
 
----
+* Expo React Native
+* TypeScript
 
-## CS153 rubric mapping
+### Backend
 
-| Criterion | Evidence in this project |
-|-----------|---------------------------|
-| **1. Problem & Insight** | README + feed mission line + `constants/copy.ts`; targets campus deal-flow + judgment gap |
-| **2. Execution & Technical Work** | Expo/RN/TS app, optional Supabase, OpenAI pipeline, contexts for decisions/forecasts, `EXPO_PUBLIC_DEMO_MODE` |
-| **3. Evaluation & Evidence** | Leaderboard + profile stats/activity; community % on cards updates after your actions in demo |
-| **4. Communication & Presentation** | In-app capability pills, section headers, this README, demo script below |
-| **5. Process, Integrity & Disclosure** | Profile disclosure line; AI/tooling section above; demo vs live behavior documented |
+* Supabase
+* PostgreSQL
+* Authentication
+* Cloud Storage
 
-### ~3 minute demo script
+### AI Layer
 
-1. **Feed** — capability pills, AI scores, community signals.  
-2. **QuadLink (or any card)** — scroll **AI diligence** sections and score.  
-3. **Invest** or **Pass** — conviction + toast; note feed stats can update.  
-4. **Forecast** — select questions, set probabilities, submit.  
-5. **Leaderboard** — forecasters + campus tabs.  
-6. **Profile** — reputation, badges, merged activity.  
-7. **Submit** — short founder form → loading → new startup detail with generated memo.
+* OpenAI API
+* Structured diligence generation workflows
+* Prompt-engineered venture analyst roles
 
----
+## AI Usage
+
+Artificial intelligence is central to the functionality of FutarchyVC.
+
+AI is used to:
+
+* Analyze startup submissions
+* Generate investment research
+* Produce structured diligence reports
+* Identify potential risks
+* Evaluate market opportunities
+* Generate investment memos
+
+Importantly, AI does not make final investment decisions within the platform. Instead, AI serves as an analytical layer that augments human judgment and provides users with better information for decision-making.
+
+## Development Process
+
+This project was built using AI-assisted software development tools.
+
+The majority of the codebase was generated and implemented using Cursor, which was used for feature development, debugging, application architecture, component generation, database integration, and frontend implementation.
+
+ChatGPT was used throughout the development process to refine product specifications, generate detailed prompts for Cursor, refine the README file, and iterate on both the technical and conceptual aspects of the platform.
+
+I determined all major product decisions, architecture choices, feature requirements, and project direction.
+
+## Validation
+
+To validate the concept, I spoke with founders and fellow students during a BASES (Business Association of Stanford Entrepreneurial Students) pitch event and gathered feedback on both the product concept and user experience.
+
+Participants expressed interest in:
+
+* A centralized startup discovery platform
+* AI-generated diligence reports
+* Reputation-based forecasting systems
+* Competitive leaderboards
+
+While this feedback was qualitative and limited in scale, it informed several design decisions and provided initial evidence of demand for the concept.
 
 ## Limitations
 
-- **Demo mode** uses six seeded startups and mock diligence; no live market or outcome resolution yet.  
-- **Forecasts** are stored but not scored against real outcomes (accuracy is placeholder on leaderboard).  
-- **OpenAI key in client** is for prototyping only; production should proxy via a backend.  
-- **Pitch deck / logo upload** UI is placeholder only.  
-- **Supabase RLS** must be hardened before any public deployment.  
-- **Single-campus mock** leaderboard data; not validated with a user study in this submission.
+The project has several important limitations:
 
----
+* The platform has not yet been deployed to a live user base.
+* Long-term forecasting accuracy has not yet been measured.
+* AI-generated diligence depends on the quality and completeness of founder-submitted information.
+* Real capital deployment and venture fund operations are outside the scope of the current implementation.
+* Economic incentive structures and legal fund formation remain future work.
 
-## Future work
+## Future Work
 
-- Resolve forecasts against real startup outcomes and update reputation algorithmically.  
-- Backend proxy for OpenAI + file storage for decks/logos.  
-- Admin review queue for founder submissions (`pending` → `analyzed` in schema).  
-- Cross-campus leaderboards with verified `.edu` auth.  
-- Export diligence PDF and investor discussion threads per startup.
+Future development priorities include:
 
----
+* Integration with external data sources
+* Enhanced AI diligence workflows
+* Campus-specific startup ecosystems
+* Multi-university deployment
+* Exploration of legal structures required for a fully functioning futarchy-governed venture fund
 
-## Project structure
+## Author
 
-| Path | Purpose |
-|------|---------|
-| `app/` | Expo Router: Feed, Submit, Leaderboard, Profile, startup detail, auth |
-| `components/` | UI, modals (`ForecastModal`, `InvestmentDecisionModal`), `ProductCapabilities` |
-| `constants/copy.ts` | Product + CS153-facing copy |
-| `lib/diligencePrompts.ts` | Exact OpenAI prompts |
-| `services/generateDiligence.ts` | AI + mock diligence pipeline |
-| `services/startupRegistry.ts` | Merge mock, local submissions, optional Supabase |
-| `contexts/` | Auth, investment decisions, forecasts |
-| `services/mock/` | Demo startups, diligence, leaderboard, profile |
-| `supabase/schema.sql` | Optional Postgres schema |
+Kate Ragatz
 
----
+Stanford University
 
-## Scripts & troubleshooting
-
-| Command | Description |
-|---------|-------------|
-| `npm run start:demo` | Demo mode + clear Metro cache |
-| `npm start` | Standard Expo dev server |
-
-| Issue | Fix |
-|-------|-----|
-| Stuck on auth | `EXPO_PUBLIC_DEMO_MODE=true` in `.env`, restart with `-c` |
-| Blank feed | `npm install` + `npm run start:demo` or `npx expo start -c` |
-
----
-
-## Tech stack
-
-Expo ~56 · React Native 0.85 · TypeScript (strict) · Expo Router · AsyncStorage · optional Supabase JS · optional OpenAI API
+CS 153: Frontier Systems

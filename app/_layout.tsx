@@ -1,22 +1,26 @@
+/**
+ * Root layout: auth gate, tab stack, startup detail, global decision/forecast modals.
+ * CS153 product loop — AI diligence → forecast → invest/pass → reputation (see README).
+ */
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import AppModalHost from '@/components/AppModalHost';
+import AuthGate from '@/components/AuthGate';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DecisionProvider } from '@/contexts/DecisionContext';
+import { ForecastProvider } from '@/contexts/ForecastContext';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
+export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -24,7 +28,6 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -39,18 +42,34 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <AuthProvider>
+      <AuthGate>
+        <DecisionProvider>
+          <ForecastProvider>
+            <StatusBar style="light" />
+            <Stack
+              screenOptions={{
+                headerStyle: { backgroundColor: '#071A33' },
+                headerTintColor: '#FFFFFF',
+                headerTitleStyle: { fontWeight: '600' },
+                contentStyle: { backgroundColor: '#071A33' },
+              }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="auth" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="startup/[id]"
+                options={{
+                  title: 'Startup',
+                  presentation: 'card',
+                }}
+              />
+            </Stack>
+            <AppModalHost />
+          </ForecastProvider>
+        </DecisionProvider>
+      </AuthGate>
+    </AuthProvider>
   );
 }

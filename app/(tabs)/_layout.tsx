@@ -1,66 +1,86 @@
 import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+import { Tabs } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import navigationColors, { border, navy, palette } from '@/constants/colors';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
+      initialRouteName="feed"
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        tabBarActiveTintColor: navigationColors.dark.tabIconSelected,
+        tabBarInactiveTintColor: navigationColors.dark.tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: navy[800],
+          borderTopColor: border.dark,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          height: 56,
+          paddingTop: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          letterSpacing: 0.3,
+        },
+        headerStyle: {
+          backgroundColor: palette.background,
+        },
+        headerTintColor: palette.white,
+        headerTitleStyle: {
+          fontWeight: '600',
+        },
+        headerShadowVisible: false,
       }}>
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
-        name="index"
+        name="feed"
         options={{
-          title: 'Tab One',
+          title: 'Feed',
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
+              name={{ ios: 'newspaper.fill', android: 'article', web: 'article' }}
               tintColor={color}
-              size={28}
+              size={24}
             />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
           ),
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="submit"
         options={{
-          title: 'Tab Two',
+          title: 'Submit',
           tabBarIcon: ({ color }) => (
             <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
+              name={{ ios: 'plus.circle.fill', android: 'add_circle', web: 'add_circle' }}
               tintColor={color}
-              size={28}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="leaderboard"
+        options={{
+          title: 'Leaderboard',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'trophy.fill', android: 'emoji_events', web: 'emoji_events' }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'person.circle.fill', android: 'person', web: 'person' }}
+              tintColor={color}
+              size={24}
             />
           ),
         }}

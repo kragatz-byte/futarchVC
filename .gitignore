@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+.pillow-deps/
 
 # Expo
 .expo/
@@ -31,7 +32,11 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# never commit API keys
+.env.production
 
 # typescript
 *.tsbuildinfo
